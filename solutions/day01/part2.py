@@ -14,25 +14,26 @@ MAPPING_DICT = {
 }
 
 
-class FileParser:
+class InputFileReader:
     def __init__(self, file_path: str) -> None:
         self.file_path = file_path
 
-    def parse_input_lines_to_list(self) -> List[List[int]]:
+    def read_lines(self) -> List[str]:
         with open(self.file_path, "r") as file:
-            data = [line for line in file]
-        return data
+            lines = [line.strip() for line in file]
+        return lines
 
 
 def solve(file_path: str = "inputs/day01.txt") -> int:
-    calibration_values = FileParser(file_path).parse_input_lines_to_list()
+    reader = InputFileReader(file_path)
+    calibration_values = reader.read_lines()
     calibration_value_sum = 0
     for calibration_value in calibration_values:
         transformed_values = []
         calibration_value = [*calibration_value]
         word = ""
         for char in calibration_value:
-            if char in ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"]:
+            if char.isdigit():
                 transformed_values.append(char)
                 break
             else:
@@ -46,7 +47,7 @@ def solve(file_path: str = "inputs/day01.txt") -> int:
         calibration_value.reverse()
         word = ""
         for char in calibration_value:
-            if char in ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"]:
+            if char.isdigit():
                 transformed_values.append(char)
                 break
             else:
@@ -65,4 +66,4 @@ def solve(file_path: str = "inputs/day01.txt") -> int:
 
 if __name__ == "__main__":
     solution = solve()
-    print(f"Day 1, Part 1: {solution}")
+    print(f"Day 1, Part 2: {solution}")
