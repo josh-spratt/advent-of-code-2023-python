@@ -1,6 +1,5 @@
 from typing import List
 import re
-from pprint import pprint
 
 
 class InputFileReader:
