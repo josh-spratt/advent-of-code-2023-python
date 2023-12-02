@@ -1,30 +1,67 @@
-from itertools import groupby
 from typing import List
 
+MAPPING_DICT = {
+    "one": 1,
+    "two": 2,
+    "three": 3,
+    "four": 4,
+    "five": 5,
+    "six": 6,
+    "seven": 7,
+    "eight": 8,
+    "nine": 9,
+    "zero": 0,
+}
 
-class InputFile:
+
+class InputFileReader:
     def __init__(self, file_path: str) -> None:
         self.file_path = file_path
 
-    def parse_input_lines_to_list(self) -> List[List[int]]:
+    def read_lines(self) -> List[str]:
         with open(self.file_path, "r") as file:
-            data = [
-                int(line.strip()) if line != "\n" else line.strip() for line in file
-            ]
-        return [list(g) for k, g in groupby(data, key=bool) if k]
-
-
-def calculate_top3_elf_calories(data: List[List[int]]) -> int:
-    elf_calories = [sum(group) for group in data]
-    elf_calories.sort(reverse=True)
-    return sum(elf_calories[0:3])
+            lines = [line.strip() for line in file]
+        return lines
 
 
 def solve(file_path: str = "inputs/day01.txt") -> int:
-    input_file = InputFile(file_path)
-    parsed_data = input_file.parse_input_lines_to_list()
-    result = calculate_top3_elf_calories(data=parsed_data)
-    return result
+    reader = InputFileReader(file_path)
+    calibration_values = reader.read_lines()
+    calibration_value_sum = 0
+    for calibration_value in calibration_values:
+        transformed_values = []
+        calibration_value = [*calibration_value]
+        word = ""
+        for char in calibration_value:
+            if char.isdigit():
+                transformed_values.append(char)
+                break
+            else:
+                word += char
+            if any(
+                (match := substring) in word for substring in list(MAPPING_DICT.keys())
+            ):
+                transformed_values.append(str(MAPPING_DICT[match]))
+                word = ""
+                break
+        calibration_value.reverse()
+        word = ""
+        for char in calibration_value:
+            if char.isdigit():
+                transformed_values.append(char)
+                break
+            else:
+                word += char
+            if any(
+                (match := substring) in word[::-1]
+                for substring in list(MAPPING_DICT.keys())
+            ):
+                transformed_values.append(str(MAPPING_DICT[match]))
+                word = ""
+                break
+        first_last = transformed_values[0] + transformed_values[-1]
+        calibration_value_sum += int(first_last)
+    return calibration_value_sum
 
 
 if __name__ == "__main__":
