@@ -1,5 +1,4 @@
 from itertools import groupby
-from pprint import pprint
 from typing import List
 
 
@@ -13,34 +12,29 @@ class InputFileReader:
         return lines
 
 
-class MediumMap:
-    def __init__(
-        self,
-        source_category: str,
-        destination_category: str,
-        source_range_start: int,
-        destination_range_start: int,
-        range_length: int,
-    ) -> None:
-        self.source_category = source_category
-        self.destination_category = destination_category
-        self.source_range_start = source_range_start
-        self.destination_range_start = destination_range_start
-        self.range_length = range_length
-
-
 def solve(file_path: str = "inputs/day05.txt") -> int:
     reader = InputFileReader(file_path)
     lines = reader.read_lines()
     lines = [list(y) for x, y in groupby(lines, key=bool) if x]
     seeds = [int(seed) for seed in lines[0][0].replace("seeds: ", "").split(" ")]
-    for mapping in lines[1:]:
-        mappings = [line.split(" ") for line in mapping[1:]]
-        mapping_name = mapping[0].replace(" map:", "")
-        mappings = [[int(mapping) for mapping in x] for x in mappings]
-        print(mapping_name)
-        pprint(mappings)
-        
+
+    all_location_numbers = []  # Find the min of this to get the answer
+
+    for seed in seeds:
+        for mapping in lines[1:]:
+            mapping_integers = [x.split(" ") for x in mapping[1:]]
+            mapping_integers = [[int(x) for x in y] for y in mapping_integers]
+            for mapping_integer in mapping_integers:
+                if (
+                    seed >= mapping_integer[1]
+                    and seed <= mapping_integer[1] + mapping_integer[2]
+                ):
+                    seed = seed - (mapping_integer[1] - mapping_integer[0])
+                    break
+                seed = seed
+        all_location_numbers.append(seed)
+    return min(all_location_numbers)
+
 
 if __name__ == "__main__":
     solution = solve()

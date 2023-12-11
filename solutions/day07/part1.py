@@ -1,8 +1,8 @@
-from typing import List
+from typing import List, Union
 from pprint import pprint
 from collections import Counter
 
-STRENGTH_OF_CARDS = ["A", "K", "Q", "J", "T", "9", "8", "7", "6", "5", "4", "3", "2"]
+CARD_TO_ALPHA_MAP = {"T": "A", "J": "B", "Q": "C", "K": "D", "A": "E"}
 
 
 class InputFileReader:
@@ -15,43 +15,40 @@ class InputFileReader:
         return lines
 
 
-class Hand:
-    def __init__(self, cards: List[str]) -> None:
-        self.cards = cards
+def _type_of_hand(hand: str) -> int:
+    card_counts = [hand.count(card) for card in hand]
+    if 5 in card_counts:
+        return 6
+    if 4 in card_counts:
+        return 5
+    if 3 in card_counts:
+        if 2 in card_counts:
+            return 4
+        return 3
+    if card_counts.count(2) == 4:
+        return 2
+    if 2 in card_counts:
+        return 1
+    return 0
 
-    def translate_hand(self):
-        # Five of a kind
-        if len(set(self.cards)) == 1:
-            return "five_of_a_kind"
-        # Four of a kind
-        elif 4 in Counter(self.cards).values():
-            return "four_of_a_kind"
-        # Full house
-        elif 2 in Counter(self.cards).values() and 3 in Counter(self.cards).values():
-            return "full_house"
-        # Three of a kind
-        elif 3 in Counter(self.cards).values():
-            return "three_of_a_kind"
-        # Two pair
-        elif len(set(self.cards)) == 3:
-            return "two_pair"
-        # Pair
-        elif 2 in Counter(self.cards).values():
-            return "pair"
-        # High card
-        else:
-            return "high_card"
+
+def strength_of_hand(hand: str) -> int:
+    return (_type_of_hand(hand), [CARD_TO_ALPHA_MAP.get(card, card) for card in hand])
 
 
 def solve(file_path: str = "inputs/day07.txt") -> int:
     reader = InputFileReader(file_path)
     lines = reader.read_lines()
-    lines = [tuple(line.split(" ")) for line in lines]
-    cards = [line[0] for line in lines]
-    for card in cards:
-        print([*card])
-        hand = Hand([*card])
-        translation = hand.translate_hand()
+    hands_with_bids = [tuple(line.split(" ")) for line in lines]
+    hands_with_bids = [
+        (hand_with_bid[0], int(hand_with_bid[1])) for hand_with_bid in hands_with_bids
+    ]
+    hands_with_bids.sort(key=lambda hand_with_bid: strength_of_hand(hand_with_bid[0]))
+
+    bid_sum = 0
+    for x, y in enumerate(hands_with_bids, 1):
+        bid_sum += x * y[1]
+    return bid_sum
 
 
 if __name__ == "__main__":
